@@ -1,50 +1,97 @@
 /******************************************
 Treehouse Techdegree:
-FSJS project 2 - List Filter and Pagination
+project 2 - List Filter and Pagination
+
+Please REJECT if this submission does not meet
+all Exceeds Expectations Requirements, thank you.
+
 ******************************************/
-   
-// Study guide for this project - https://drive.google.com/file/d/1OD1diUsTMdpfMDv677TfL1xO2CEkykSz/view?usp=sharing
-
-
-/*** 
-   Add your global variables that store the DOM elements you will 
-   need to reference and/or manipulate. 
-   
-   But be mindful of which variables should be global and which 
-   should be locally scoped to one of the two main functions you're 
-   going to create. A good general rule of thumb is if the variable 
-   will only be used inside of a function, then it can be locally 
-   scoped to that function.
-***/
-
-
-
+const studentList = document.querySelector('ul.student-list').children;
+const itemsPerPage = 10;
 
 /*** 
-   Create the `showPage` function to hide all of the items in the 
-   list except for the ten you want to show.
-
-   Pro Tips: 
-     - Keep in mind that with a list of 54 students, the last page 
-       will only display four.
-     - Remember that the first student has an index of 0.
-     - Remember that a function `parameter` goes in the parens when 
-       you initially define the function, and it acts as a variable 
-       or a placeholder to represent the actual function `argument` 
-       that will be passed into the parens later when you call or 
-       "invoke" the function 
+the function displays a certain part of the list
+accoridng to the page parameter and specified 
+itemsPerPage
 ***/
-
-
-
+showPage = (list, page) => {
+   const startIndex = (page - 1)*itemsPerPage;
+   const endIndex = page*itemsPerPage;
+   for (let i=0; i<list.length; i++) {
+      if ((i >= startIndex) && (i < endIndex)) {
+         list[i].style.display = '';
+      } else {
+         list[i].style.display = 'none';
+      }
+   }
+}
 
 /*** 
-   Create the `appendPageLinks function` to generate, append, and add 
-   functionality to the pagination buttons.
+generates, appends pagination buttons, while
+allowing each button to display a certain
+section of the list
 ***/
+appendPageLinks = list => {
+   const pageDiv = document.querySelector('div.page');
+   const paginationDiv = document.createElement('div');
+   const linkUl = document.createElement('ul');
+   let pageNumber = 1;
 
+   /**
+    * creates an anchor with attributes needed for
+    * styling and functionality
+    */
+   attributedAnchor = pageNumber => {
+      const anchor = document.createElement('a');
+      anchor.href = '#';
+      anchor.textContent = pageNumber;
+      if (pageNumber === 1) anchor.className = 'active';
+      return anchor;
+   }
 
+   //functionality when each anchor is clicked
+   clickFunct = anchor => {
+      const anchorList = linkUl.getElementsByTagName('a');
+      for (let j=0; j<anchorList.length; j++) {
+         anchorList[j].removeAttribute('class');
+      }
+      anchor.className = 'active';
+      showPage(studentList, anchor.textContent);
+   }
 
+   paginationDiv.className = 'pagination';
+   paginationDiv.appendChild(linkUl);
+   pageDiv.appendChild(paginationDiv);
 
+   for (i = list.length; i > 0; i -= itemsPerPage) {
+      const li = document.createElement('li');
+      const anchor = attributedAnchor(pageNumber);
+      anchor.addEventListener('click', (e) => {
+         clickFunct(anchor);
+      } )
+      li.appendChild(anchor);
+      linkUl.appendChild(li);
+      pageNumber++;
+   };
+}
 
-// Remember to delete the comments that came with this file, and replace them with your own code comments.
+addSearchBar() {
+   const headerDiv = document.querySelector('div.page-header');
+   const searchDiv = document.createElement('div');
+   searchDiv.className = 'student-search';
+   const input = document.createElement('input');
+   input.placeholder = 'Search for students...';
+   const button = document.createElement('button');
+   button.textContent = 'Search';
+   searchDiv.appendChild(input);
+   searchDiv.appendChild(button);
+   headerDiv.appendChild(searchDiv);
+}
+
+/**
+ * initiates the site to start on the
+ * first page
+ */
+addSearchBar();
+showPage(studentList, 1);
+appendPageLinks(studentList);
