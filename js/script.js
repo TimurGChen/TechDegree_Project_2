@@ -8,6 +8,13 @@ all Exceeds Expectations Requirements, thank you.
 ******************************************/
 const studentList = document.querySelector('ul.student-list').children;
 const itemsPerPage = 10;
+const pageDiv = document.querySelector('div.page');
+
+//removes pagination links and 'no result' message
+clearPagination = () => {
+   if (document.querySelector('div.pagination')) pageDiv.removeChild(document.querySelector('div.pagination'));
+   if (document.querySelector('h3#noResult')) pageDiv.removeChild(document.querySelector('h3#noResult'));
+}
 
 /*** 
 the function displays a certain part of the list
@@ -32,10 +39,6 @@ allowing each button to display a certain
 section of the list
 ***/
 appendPageLinks = list => {
-   const pageDiv = document.querySelector('div.page');
-   const paginationDiv = document.createElement('div');
-   const linkUl = document.createElement('ul');
-   let pageNumber = 1;
 
    /**
     * creates an anchor with attributes needed for
@@ -49,17 +52,24 @@ appendPageLinks = list => {
       return anchor;
    }
 
-   //functionality when each anchor is clicked
+   //resets active class when each anchor is clicked
    clickFunct = anchor => {
       const anchorList = linkUl.getElementsByTagName('a');
       for (let j=0; j<anchorList.length; j++) {
          anchorList[j].removeAttribute('class');
       }
       anchor.className = 'active';
-      showPage(studentList, anchor.textContent);
+      showPage(list, anchor.textContent);
    }
 
-   paginationDiv.className = 'pagination';
+   clearPagination();
+
+   const pageDiv = document.querySelector('div.page');
+   const paginationDiv = document.createElement('div');
+      paginationDiv.className = 'pagination';
+   const linkUl = document.createElement('ul');
+   let pageNumber = 1;
+
    paginationDiv.appendChild(linkUl);
    pageDiv.appendChild(paginationDiv);
 
@@ -75,16 +85,65 @@ appendPageLinks = list => {
    };
 }
 
-addSearchBar() {
+addSearchFunct = () => {
+
+   //returns a list of matching items in studentList
+   //according to the input value; 
+   search = (input) => {
+      for (let i=0; i<studentList.length; i++) {
+         const studentName = studentList[i].querySelector('h3').textContent;
+         studentList[i].dataset.match = false;
+         if ((input.value.length !== 0) && (studentName.toLowerCase().includes(input.value.toLowerCase()))) {
+            studentList[i].dataset.match = true;
+         }
+      }
+      const matchList = studentList[0].parentNode.querySelectorAll('li[data-match=true]');
+      return matchList;
+   }
+
+   //response to users' input action to the search box
+   searchResponse = () => {
+      for (let i=0; i<studentList.length; i++) {
+         studentList[i].style.display = 'none';
+      }
+      const matchList = search(searchInput);
+      if (matchList[0]) {
+         showPage(matchList, 1);
+         appendPageLinks(matchList);
+      } else {
+         clearPagination();
+         const noResult = document.createElement('h3');
+         noResult.id = 'noResult';
+         noResult.textContent = 'No Result';
+         pageDiv.appendChild(noResult);
+      }
+   }
+
+   attachListeners = () => {
+      searchButton.addEventListener('click', (e) => {
+         searchResponse();
+      })
+      searchInput.addEventListener('keyup', (e) => {
+         searchResponse();
+      })
+      searchDiv.addEventListener('submit', (e) => {
+         e.preventDefault();
+         searchResponse();
+      })
+   }
+
    const headerDiv = document.querySelector('div.page-header');
    const searchDiv = document.createElement('div');
-   searchDiv.className = 'student-search';
-   const input = document.createElement('input');
-   input.placeholder = 'Search for students...';
-   const button = document.createElement('button');
-   button.textContent = 'Search';
-   searchDiv.appendChild(input);
-   searchDiv.appendChild(button);
+      searchDiv.className = 'student-search';
+   const searchInput = document.createElement('input');
+      searchInput.placeholder = 'Search for students...';
+   const searchButton = document.createElement('button');
+      searchButton.textContent = 'Search';
+
+   attachListeners();
+
+   searchDiv.appendChild(searchInput);
+   searchDiv.appendChild(searchButton);
    headerDiv.appendChild(searchDiv);
 }
 
@@ -92,6 +151,6 @@ addSearchBar() {
  * initiates the site to start on the
  * first page
  */
-addSearchBar();
 showPage(studentList, 1);
 appendPageLinks(studentList);
+addSearchFunct();
