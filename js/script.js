@@ -86,8 +86,7 @@ appendPageLinks = list => {
 }
 
 addSearchFunct = () => {
-
-   //returns a list of matching items in studentList
+   //returns a list of matching items in studentList,
    //according to the input value; 
    search = (input) => {
       for (let i=0; i<studentList.length; i++) {
@@ -101,7 +100,7 @@ addSearchFunct = () => {
       return matchList;
    }
 
-   //response to users' input action to the search box
+   //response to users' action to the search box
    searchResponse = () => {
       for (let i=0; i<studentList.length; i++) {
          studentList[i].style.display = 'none';
@@ -111,11 +110,16 @@ addSearchFunct = () => {
          showPage(matchList, 1);
          appendPageLinks(matchList);
       } else {
-         clearPagination();
-         const noResult = document.createElement('h3');
-         noResult.id = 'noResult';
-         noResult.textContent = 'No Result';
-         pageDiv.appendChild(noResult);
+         if (searchInput.value.length !== 0) {
+            clearPagination();
+            const noResult = document.createElement('h3');
+            noResult.id = 'noResult';
+            noResult.textContent = 'No Result';
+            pageDiv.appendChild(noResult);
+         } else {
+            showPage(studentList, 1);
+            appendPageLinks(studentList);
+         }
       }
    }
 
